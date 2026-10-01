@@ -27,7 +27,7 @@ from .helpers import (
 AI_BASE_URL = os.getenv("DEEPSEEK_BASE_URL")
 AI_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 AI_MODEL = os.getenv("DEEPSEEK_MODEL")
-DEFAULT_AI_TIMEOUT = float(os.getenv("AI_TIMEOUT", "60.0"))
+DEFAULT_AI_TIMEOUT = float(os.getenv("AI_TIMEOUT", "120.0"))
 
 # Conexión local con LM Studio / OpenAI
 client = OpenAI(

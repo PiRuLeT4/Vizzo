@@ -1,0 +1,31 @@
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  [ANALISIS DE CALIDAD - ViZo_AI]                                    │
+│  Repositorio: PiRuLeT4/ViZo                                        │
+│  Dashboard: data_by_language                                        │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌──[Métricas Clave]──────────────────────────────────────────────────┐
+│  Python (py): 1821 nloc, 1.53 ccn, 57 commits, 36 archivos         │
+│  JavaScript (js): 1827 nloc, 4.07 ccn, 10 commits, 6 archivos      │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌──[Análisis de Complejidad]─────────────────────────────────────────┐
+│  ⚠️  JavaScript presenta alta complejidad ciclomática (4.07)       │
+│     Posible necesidad de refactorización modular                    │
+│  ✅ Python tiene complejidad baja (1.53), estructura más limpia    │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌──[Problemas Detectados]────────────────────────────────────────────┐
+│  🔥 Archivos JS muy complejos, riesgo de mantenimiento             │
+│  🧠 Python con bajo riesgo de fallos lógicos                       │
+│  📦 Tamaño de código similar, pero distribución desequilibrada     │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌──[Recomendaciones]─────────────────────────────────────────────────┐
+│  🔧 Refactorizar módulos JS con alta ccn                           │
+│  🛠️  Implementar pruebas unitarias para JS                         │
+│  📊 Monitorear métricas de calidad en cada commit                  │
+└─────────────────────────────────────────────────────────────────────┘
+
+```

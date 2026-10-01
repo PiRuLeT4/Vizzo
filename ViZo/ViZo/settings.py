@@ -41,6 +41,18 @@ ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_raw.split(",") if host.s
 # CSRF Trusted Origins
 _extra_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in _extra_origins if o.strip()]
+
+# Añadir automáticamente los dominios de ALLOWED_HOSTS a CSRF_TRUSTED_ORIGINS
+for host in ALLOWED_HOSTS:
+    if host and host != "*":
+        if not host.startswith("http://") and not host.startswith("https://"):
+            CSRF_TRUSTED_ORIGINS.append(f"https://{host}")
+            CSRF_TRUSTED_ORIGINS.append(f"http://{host}")
+        else:
+            CSRF_TRUSTED_ORIGINS.append(host)
+
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
+
 if DEBUG:
     CSRF_TRUSTED_ORIGINS += [
         "https://*.ngrok-free.dev",
@@ -49,6 +61,9 @@ if DEBUG:
     ]
 
 FIELD_ENCRYPTION_KEY = os.getenv("FIELD_ENCRYPTION_KEY")
+
+# Soportar cabecera HTTPS proveniente del proxy inverso (Nginx)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 
@@ -166,7 +181,7 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "False").lower() in ("true", "1", "yes")
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True

@@ -45,9 +45,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      - ./ViZo:/app/ViZo
       - vizzo_logs:/app/ViZo/logs
       - vizzo_staticfiles:/app/ViZo/staticfiles
-      - ./ViZo:/app/ViZo
     depends_on:
       db:
         condition: service_healthy

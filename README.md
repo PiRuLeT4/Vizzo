@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://vizzovr.com">
-  <img src="ViZo/static/logo.png" alt="ViZzo Logo" width="180" />
+  <img src="ViZo/static/logo.png" alt="ViZzo Logo" width="280" />
 </a>
 
 # **ViZzo**
