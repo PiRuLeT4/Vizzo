@@ -12,7 +12,20 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.urls import reverse
+from django.conf import settings
 from analyzer.models import UserProfile
+
+
+def _get_redirect_uri(request, view_name):
+    """
+    Construye la URI absoluta para la vista indicada.
+    En entorno de producción (DEBUG=False), garantiza que el esquema sea 'https://'
+    incluso si el proxy inverso Nginx no ha transmitido la cabecera X-Forwarded-Proto.
+    """
+    uri = request.build_absolute_uri(reverse(view_name))
+    if not settings.DEBUG and uri.startswith("http://"):
+        uri = uri.replace("http://", "https://", 1)
+    return uri
 
 
 def github_login(request):
@@ -34,7 +47,7 @@ def github_login(request):
 
     # Scope: 'repo' para acceso a repositorios públicos/privados, 'user' para perfil
     scope = "repo user"
-    redirect_uri = request.build_absolute_uri(reverse("github_callback"))
+    redirect_uri = _get_redirect_uri(request, "github_callback")
     
     # Construir la URL de autorización
     auth_url = (
@@ -66,7 +79,7 @@ def github_callback(request):
 
     client_id = os.getenv("GITHUB_CLIENT_ID")
     client_secret = os.getenv("GITHUB_CLIENT_SECRET")
-    redirect_uri = request.build_absolute_uri(reverse("github_callback"))
+    redirect_uri = _get_redirect_uri(request, "github_callback")
 
     # 1. Intercambiar código por Token de Acceso
     token_url = "https://github.com/login/oauth/access_token"
@@ -174,7 +187,7 @@ def gitlab_login(request):
     request.session["oauth_gitlab_state"] = state
 
     scope = "read_user"
-    redirect_uri = request.build_absolute_uri(reverse("gitlab_callback"))
+    redirect_uri = _get_redirect_uri(request, "gitlab_callback")
     
     auth_url = (
         f"https://gitlab.com/oauth/authorize"
@@ -206,7 +219,7 @@ def gitlab_callback(request):
 
     client_id = os.getenv("GITLAB_CLIENT_ID")
     client_secret = os.getenv("GITLAB_CLIENT_SECRET")
-    redirect_uri = request.build_absolute_uri(reverse("gitlab_callback"))
+    redirect_uri = _get_redirect_uri(request, "gitlab_callback")
 
     # 1. Intercambiar código por Token de Acceso
     token_url = "https://gitlab.com/oauth/token"
