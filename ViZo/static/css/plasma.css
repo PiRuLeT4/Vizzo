@@ -1,0 +1,23 @@
+/* ═══════════════════════════════════════════════════════
+   plasma.css — Capa de fondo animado WebGL para ViZzo
+   ═══════════════════════════════════════════════════════ */
+
+.plasma-bg-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 1;
+  background: transparent;
+}
+
+.plasma-bg-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none;
+}

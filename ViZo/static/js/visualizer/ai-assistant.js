@@ -505,6 +505,25 @@ export function fetchAiInfo(dashboardType, targetEl) {
     else if (dashboardType === "bars") datasetKey = "pull_requests";
   }
 
+  let componentType = dashboardType;
+  if (targetEl) {
+    const compCheckAttrs = [
+      "babia-boats",
+      "babia-cyls",
+      "babia-doughnut",
+      "babia-pie",
+      "babia-barsmap",
+      "babia-network",
+      "babia-bars",
+    ];
+    for (let i = 0; i < compCheckAttrs.length; i++) {
+      if (targetEl.hasAttribute(compCheckAttrs[i])) {
+        componentType = compCheckAttrs[i];
+        break;
+      }
+    }
+  }
+
   const state = window.ViZzoState;
   dashboardData = state.dataMap[datasetKey] || {};
 
@@ -517,6 +536,7 @@ export function fetchAiInfo(dashboardType, targetEl) {
   const lang = window.getLang ? window.getLang() : (localStorage.getItem("vizzo_lang") || "es");
   const payload = {
     dashboard_type: datasetKey || dashboardType,
+    component_type: componentType || dashboardType,
     dashboard_data: dashboardData || {},
     repo_name: repoName,
     language: lang,

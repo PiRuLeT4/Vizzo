@@ -20,6 +20,7 @@ const TRANSLATIONS = {
     "home.cta": "Analizar Repositorio",
     "home.cta_arrow": "→",
     "home.cta_secondary": "Saber más",
+    "home.scroll_text": "Descubre más",
 
     // How it works
     "home.how.label": "Cómo funciona",
@@ -146,6 +147,7 @@ const TRANSLATIONS = {
     "home.cta": "Analyze Repository",
     "home.cta_arrow": "→",
     "home.cta_secondary": "Learn more",
+    "home.scroll_text": "Discover more",
 
     // How it works
     "home.how.label": "How it works",

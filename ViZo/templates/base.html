@@ -13,12 +13,15 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="{% static 'css/global.css' %}?v=1" />
+    <link rel="stylesheet" href="{% static 'css/plasma.css' %}?v=2" />
     {% block extra_css %}{% endblock %}
     <link rel="icon" type="image/png" href="{% static 'logo.png' %}" />
     <script src="{% static 'js/translations.js' %}?v=3" defer></script>
     {% block extra_js %}{% endblock %}
   </head>
   <body>
+    <!-- Capa de Fondo Animado Plasma (WebGL) -->
+    <div id="plasma-bg" class="plasma-bg-container"></div>
     <!-- ═══ Navbar ═══ -->
     <nav class="vizzo-navbar" id="vizzoNavbar">
       <!-- Brand / Logo -->
@@ -121,5 +124,8 @@
         </div>
       </div>
     </div>
+
+    <!-- Fondo Animado Plasma en React (React 18 + OGL ESM) -->
+    <script type="module" src="{% static 'js/PlasmaReact.js' %}?v=3"></script>
   </body>
 </html>

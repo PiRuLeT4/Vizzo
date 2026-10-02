@@ -72,11 +72,12 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--bg-primary, #0A0A0F);
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-primary);
+  background-color: transparent;
   color: var(--text-primary);
   min-height: 100vh;
   line-height: 1.6;
@@ -453,6 +454,8 @@ img {
 
 /* ── Main content offset for fixed navbar ── */
 .main-content {
+  position: relative;
+  z-index: 1;
   padding-top: var(--navbar-height);
   min-height: 100vh;
 }
