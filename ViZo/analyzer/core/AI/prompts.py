@@ -156,6 +156,20 @@ Tu propósito es analizar los datos estructurados del repositorio y proporcionar
 El análisis puede haberse realizado en modo "commits" (evolución commit a commit) o en modo "releases" (evolución basada en etiquetas/tags de versión). 
 En modo "releases", cada barra de evolución temporal o entrada en "evolution_data" representa una etiqueta de versión formal. Adapta tus explicaciones, métricas y terminología para hablar de "versiones/releases" o "commits individuales" según corresponda al contexto.
 
+# REGLAS CRÍTICAS DE FIDELIDAD VISUAL Y FORMA GEOMÉTRICA (ESTRICTAMENTE PROHIBIDO CONFUNDIR EL TIPO DE GRÁFICO)
+- Respeta rigurosamente la forma geométrica del gráfico especificada en {dashboard_description}:
+  * Si el gráfico es un "babia-pie" o "babia-doughnut" (Gráfico de Tarta / Quesito / Donut 3D): Está ESTRICTAMENTE PROHIBIDO usar palabras como "barra", "barras", "edificio", "cilindro", "eje vertical", "eje horizontal", "eje X", "eje Y" o "eje Z". Describe ÚNICAMENTE "sectores circulares", "porciones de la tarta" y "porcentajes/proporciones relativas".
+  * Si el gráfico es un "babia-bars" o "babia-barsmap": Describe "barras 3D", "altura de las barras" y sus ejes correspondientes.
+  * Si el gráfico es un "babia-boats": Describe "ciudad de código", "edificios 3D", "altura" y "área/base".
+  * Si el gráfico es un "babia-cyls": Describe "cilindros 3D", "altura" y "radio".
+  * Si el gráfico es un "babia-network": Describe "grafo de red", "esferas/nodos" y "enlaces/líneas".
+- Apóyate ESTRICTAMENTE en la descripción del dashboard provista en {dashboard_description}.
+- NO te inventes reglas sobre lo que representan las métricas visuales (colores, tamaños o grosores).
+- En los grafos de red ("file_network", "code_reviews", "babia-network"):
+  * El TAMAÑO de las esferas (nodos) representa el volumen de actividad (contribuciones o revisiones).
+  * El COLOR de las esferas es un identificador automático asignado a cada autor para diferenciarlo visualmente (NO representa el nivel de actividad ni la antigüedad).
+  * El GROSOR de los enlaces (líneas) NO representa el trabajo en común o revisiones cruzadas.
+
 # FORMATO OBLIGATORIO DE RESPUESTA (JSON)
 Debes responder ÚNICAMENTE con un objeto JSON válido con la siguiente estructura exacta:
 ```json
@@ -168,7 +182,7 @@ Debes responder ÚNICAMENTE con un objeto JSON válido con la siguiente estructu
 
 ## CONTENIDO DE CADA SECCIÓN
 1. "summary":
-   - Título del dashboard y explicación clara de sus ejes, dimensiones, colores y elementos 3D.
+   - Título del dashboard y explicación clara de sus dimensiones, colores y elementos 3D basada en la especificación exacta.
    - Contexto visual del dashboard activo:
      {dashboard_description}
    - Resumen y síntesis ejecutiva de los datos reflejados en la visualización.
@@ -194,6 +208,20 @@ CRITICAL: You MUST write your entire response in ENGLISH.
 # ANALYSIS MODES
 The analysis may have been performed in "commits" mode or "releases" mode. Adapt your explanations and terminology accordingly.
 
+# CRITICAL CHART GEOMETRY & VISUAL FIDELITY RULES (STRICT NO HALLUCINATION)
+- Strictly respect the geometric shape of the chart specified in {dashboard_description}:
+  * If the chart is "babia-pie" or "babia-doughnut" (3D Pie / Donut Chart): It is STRICTLY FORBIDDEN to use words such as "bar", "bars", "building", "cylinder", "vertical axis", "horizontal axis", "X axis", "Y axis", or "Z axis". Describe ONLY "circular sectors", "pie slices", and "relative percentages/proportions".
+  * If the chart is "babia-bars" or "babia-barsmap": Describe "3D bars", "bar height", and axes.
+  * If the chart is "babia-boats": Describe "code city", "3D buildings", "height", and "area/base".
+  * If the chart is "babia-cyls": Describe "3D cylinders", "height", and "radius".
+  * If the chart is "babia-network": Describe "network graph", "spheres/nodes", and "links/lines".
+- Rely STRICTLY on the dashboard visual specification provided in {dashboard_description}.
+- DO NOT invent rules for visual mappings (colors, sizes, or line thickness).
+- In network graphs ("file_network", "code_reviews", "babia-network"):
+  * Sphere SIZE (nodes) represents total activity volume (contributions or reviews).
+  * Sphere COLOR is an automatic visual identifier assigned to each author to distinguish nodes (it DOES NOT represent activity level or code age).
+  * Link THICKNESS (lines) represents shared co-edited files or cross-code reviews.
+
 # MANDATORY RESPONSE FORMAT (JSON)
 You MUST respond ONLY with a valid JSON object with this exact structure:
 ```json
@@ -206,7 +234,7 @@ You MUST respond ONLY with a valid JSON object with this exact structure:
 
 ## CONTENT FOR EACH SECTION
 1. "summary":
-   - Dashboard title and clear explanation of its axes, dimensions, colors and 3D elements.
+   - Dashboard title and clear explanation of its axes, dimensions, colors and 3D elements based strictly on the provided specification.
    - Active dashboard visual context:
      {dashboard_description}
    - Executive summary and synthesis of the data reflected in the visualization.
@@ -227,39 +255,94 @@ _DASHBOARD_DESCRIPTIONS = {
     "file_metrics": """Ciudad de Código ("file_metrics" / "boats"):
    - Los edificios de la ciudad representan los archivos individuales de código del repositorio.
    - Altura de los edificios: Métrica activa de volumen (líneas de código NLOC, commits, funciones, etc.).
-   - Área/Base: Complejidad ciclomática (CCN) o tamaño relativo.
-   - Color: Escala térmica HSL según la métrica activa.""",
+   - Área/Base: Complejidad ciclomática (CCN) o tamaño relativo del archivo.
+   - Color: Escala térmica HSL según la métrica activa (tonos cálidos para valores altos, fríos para valores bajos).""",
+
+    "boats": """Ciudad de Código ("file_metrics" / "boats"):
+   - Los edificios de la ciudad representan los archivos individuales de código del repositorio.
+   - Altura de los edificios: Métrica activa de volumen (líneas de código NLOC, commits, funciones, etc.).
+   - Área/Base: Complejidad ciclomática (CCN) o tamaño relativo del archivo.
+   - Color: Escala térmica HSL según la métrica activa (tonos cálidos para valores altos, fríos para valores bajos).""",
+
     "data_by_language": """Distribución por Lenguajes de Programación ("data_by_language"):
-   - Muestra la proporción, volumen y uso de cada lenguaje de programación del repositorio (representado en sectores de tarta/donut o cilindros).
-   - Métricas: Líneas de código (NLOC), número de archivos y peso relativo porcentual de cada lenguaje en el proyecto.""",
+   - Muestra la proporción, volumen y uso de cada lenguaje de programación del repositorio (en cilindros 3D o sectores de tarta/donut).
+   - Altura del cilindro: Líneas de código totales (NLOC). Radio del cilindro: Cantidad de archivos de ese lenguaje. Color: Paleta temática por lenguaje.""",
+
+    "cyls": """Distribución por Lenguajes de Programación ("data_by_language"):
+   - Muestra la proporción, volumen y uso de cada lenguaje de programación del repositorio (en cilindros 3D o sectores de tarta/donut).
+   - Altura del cilindro: Líneas de código totales (NLOC). Radio del cilindro: Cantidad de archivos de ese lenguaje. Color: Paleta temática por lenguaje.""",
+
     "top_complex_files": """Top 10 Archivos Más Complejos ("top_complex_files"):
-   - Muestra los 10 archivos de código con mayor complejidad ciclomática acumulada (CCN) o pico de complejidad en funciones del proyecto.
-   - Métricas: Complejidad ciclomática promedio (CCN) y complejidad máxima alcanzada en una sola función (Peak CCN).""",
+   - Cilindros 3D con los 10 archivos de código con mayor complejidad ciclomática acumulada (CCN) o pico de complejidad (Peak CCN).
+   - Altura del cilindro: Complejidad máxima de una sola función (Peak CCN). Radio del cilindro: Complejidad promedio (CCN). Color: Asignado por paleta visual.""",
+
     "age_distribution": """Distribución por Antigüedad ("age_distribution"):
    - Agrupa los archivos según la fecha de su última modificación en categorías: "Active" (<30 días), "Maintained" (30-180 días) y "Legacy" (>180 días).
-   - Métricas: Volumen total de líneas de código (NLOC) y número de archivos por franja temporal.""",
-    "doughnut": """Gráfico de Tarta/Donut ("doughnut"):
-   - Muestra la proporción relativa porcentual de cada categoría o elemento respecto al total del repositorio.""",
-    "pie": """Gráfico de Tarta/Donut ("pie"):
-   - Muestra la proporción relativa porcentual de cada categoría o elemento respecto al total del repositorio.""",
+   - Altura del cilindro: Volumen total de líneas de código (NLOC). Radio del cilindro: Número de archivos en esa franja temporal.""",
+
+    "doughnut": """Gráfico de Tarta/Donut 3D ("doughnut"):
+   - Muestra la proporción relativa porcentual de cada categoría o lenguaje respecto al total del repositorio.
+   - Tamaño del sector: Cantidad de archivos o porcentaje relativo. Color: Paleta temática por categoría.""",
+
+    "pie": """Gráfico de Tarta/Donut 3D ("pie"):
+   - Muestra la proporción relativa porcentual de cada categoría o lenguaje respecto al total del repositorio.
+   - Tamaño del sector: Cantidad de archivos o porcentaje relativo. Color: Paleta temática por categoría.""",
+
     "author_activity": """Actividad de Autores ("author_activity"):
-   - Proyecta la actividad, frecuencia de commits e inserciones de código de cada desarrollador a lo largo del tiempo.""",
+   - Mapa de barras 3D en cuadrícula temporal. Eje X: Autores (Desarrolladores). Eje Z: Línea temporal de commits.
+   - Altura de la barra: Frecuencia de commits o inserciones en ese intervalo. Color: Asignado por la paleta visual.""",
+
+    "barsmap": """Mapa de Barras 3D ("barsmap"):
+   - Proyección 3D de métricas sobre cuadrículas. Eje X: Categoría/Autor. Eje Z: Tiempo/Archivos.
+   - Altura de la barra: Volumen de actividad o commits.""",
+
     "top_churn_files": """Top 10 Archivos con Mayor Churn ("top_churn_files"):
-   - Muestra los 10 archivos con mayor frecuencia de cambios y modificaciones (commits acumulados y volumen NLOC).""",
-    "file_network": """Red de Colaboración ("file_network"):
-   - Red donde los nodos (esferas) representan desarrolladores y los enlaces representan trabajo compartido en los mismos archivos de código.""",
+   - Muestra los 10 archivos con mayor frecuencia de cambios y modificaciones (commits acumulados y volumen NLOC).
+   - Altura de la barra/cilindro: Frecuencia de modificación (commits). Color: Asignado por la paleta visual.""",
+
+    "file_network": """Red de Colaboración de Desarrolladores ("file_network"):
+   - Grafo 3D de esferas (nodos) y conexiones (enlaces).
+   - Nodos (Esferas): Desarrolladores del proyecto. Tamaño/Volumen de la esfera: Cantidad total de contribuciones y archivos editados. Color de la esfera: Identificador visual automático para diferenciar a cada autor (NO representa el nivel de actividad ni la antigüedad).
+   - Enlaces (Líneas/Conexiones): Trabajo compartido en los mismos archivos de código. Grosor de la línea: Número de archivos co-editados en común.""",
+
     "code_reviews": """Red de Revisiones de Código ("code_reviews"):
-   - Red donde los nodos representan colaboradores y los enlaces representan revisiones cruzadas de Pull Requests y asignaciones.""",
+   - Grafo 3D de esferas (nodos) y conexiones (enlaces).
+   - Nodos (Esferas): Colaboradores y revisores de código. Tamaño/Volumen de la esfera: Volumen de revisiones de Pull Requests realizadas o asignadas. Color de la esfera: Identificador visual automático para diferenciar a cada desarrollador (NO representa el nivel de actividad).
+   - Enlaces (Líneas/Flechas): Revisiones cruzadas de Pull Requests. Grosor de la línea: Cantidad de revisiones cruzadas entre ambos colaboradores.""",
+
+    "babia-network": """Red de Conexión 3D ("babia-network"):
+   - Grafo 3D de esferas (nodos) y conexiones (enlaces).
+   - Nodos (Esferas): Representan desarrolladores o colaboradores. Tamaño/Volumen de la esfera: Nivel de contribución o revisiones totales. Color de la esfera: Identificador de color automático para diferenciar visualmente a cada autor (NO indica el nivel de actividad).
+   - Enlaces (Líneas): Representan colaboraciones directas o revisiones cruzadas. Grosor de la línea: Cantidad de interacciones en común.""",
+
+    "network": """Red de Conexión 3D ("network"):
+   - Grafo 3D de esferas (nodos) y conexiones (enlaces).
+   - Nodos (Esferas): Representan desarrolladores o colaboradores. Tamaño/Volumen de la esfera: Nivel de contribución o revisiones totales. Color de la esfera: Identificador de color automático para diferenciar visualmente a cada autor (NO indica el nivel de actividad).
+   - Enlaces (Líneas): Representan colaboraciones directas o revisiones cruzadas. Grosor de la línea: Cantidad de interacciones en común.""",
+
     "evolution_data": """Evolución Temporal del Repositorio ("evolution_data"):
-   - Muestra la evolución histórica del proyecto por lanzamientos (releases/tags) o volumen de cambios en la línea de tiempo.""",
+   - Muestra la evolución histórica del proyecto por lanzamientos (releases/tags) o volumen de cambios en la línea de tiempo.
+   - Eje X: Línea temporal. Altura de la barra: Volumen de commits o cambios.""",
+
     "issues_health": """Estado y Salud de Issues ("issues_health"):
-   - Muestra la proporción de incidencias y tareas abiertas categorizadas por etiquetas de salud (bug, feature, refactor, doc, etc.).""",
+   - Muestra la proporción de incidencias y tareas abiertas categorizadas por etiquetas de salud (bug, feature, refactor, doc, etc.).
+   - Tamaño del sector / porción: Cantidad de incidencias por categoría.""",
+
     "releases_health": """Salud de Lanzamientos ("releases_health"):
-   - Proyecta la estabilidad y cantidad de incidencias reportadas tras la publicación de cada versión o tag del proyecto.""",
+   - Proyecta la estabilidad y cantidad de incidencias reportadas tras la publicación de cada versión o tag del proyecto.
+   - Altura de la barra: Estabilidad o cantidad de issues post-lanzamiento.""",
+
     "community_activity": """Actividad de la Comunidad ("community_activity"):
-   - Muestra el volumen total de aportaciones (issues creados + PRs enviados) por cada colaborador de la comunidad.""",
+   - Muestra el volumen total de aportaciones (issues creados + PRs enviados) por cada colaborador de la comunidad.
+   - Altura de la barra: Suma total de aportaciones en la comunidad.""",
+
     "pull_requests": """Pull Requests y Latencia ("pull_requests"):
-   - Muestra el volumen de discusión, comentarios y tiempo de resolución de los Pull Requests del proyecto.""",
+   - Muestra el volumen de discusión, comentarios y tiempo de resolución de los Pull Requests del proyecto.
+   - Altura de la barra: Tiempo de resolución (latencia de merge en horas) o volumen de comentarios.""",
+
     "file_ownership": """Propiedad de Autores / Bus Factor ("file_ownership"):
-   - Proyecta la concentración de conocimiento de cada desarrollador sobre los distintos archivos del proyecto (porcentaje de propiedad en commits).""",
+   - Proyecta la concentración de conocimiento de cada desarrollador sobre los distintos archivos del proyecto (porcentaje de propiedad en commits).
+   - Eje X: Autores. Eje Z: Archivos. Altura de la barra: Porcentaje de propiedad (0-100%).""",
 }
+
+

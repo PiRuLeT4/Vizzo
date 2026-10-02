@@ -437,6 +437,7 @@ def generate_dashboard_explanation(
     dashboard_type: str,
     dashboard_data: str,
     repo_name: str = "PROYECTO",
+    component_type: str = None,
     base_url: str = None,
     api_key: str = None,
     model: str = None,
@@ -514,8 +515,8 @@ def generate_dashboard_explanation(
         pass
 
     try:
+        from analyzer.core.AI.helpers import build_dashboard_visual_description
         from analyzer.core.AI.prompts import (
-            _DASHBOARD_DESCRIPTIONS,
             _EXPLAIN_SYSTEM_PROMPT_BASE,
             _EXPLAIN_SYSTEM_PROMPT_BASE_EN,
         )
@@ -523,38 +524,43 @@ def generate_dashboard_explanation(
         pass
 
     try:
-        desc = _DASHBOARD_DESCRIPTIONS.get(dashboard_type)
-        if not desc and ("pie" in dashboard_type or "doughnut" in dashboard_type):
-            desc = _DASHBOARD_DESCRIPTIONS.get("doughnut")
-        if not desc:
-            desc = f"Dashboard type '{dashboard_type}'. Analyze provided JSON data and explain its meaning."
+        # Construir descripción dinámicamente según dataset y tipo de componente geométrico 3D
+        desc = build_dashboard_visual_description(
+            dashboard_type=dashboard_type,
+            component_type=component_type,
+            dashboard_data=dashboard_data,
+        )
+
+        effective_comp = component_type or dashboard_type
 
         if language == "en":
             base_prompt = _EXPLAIN_SYSTEM_PROMPT_BASE_EN if '_EXPLAIN_SYSTEM_PROMPT_BASE_EN' in locals() else _EXPLAIN_SYSTEM_PROMPT_BASE
             system_prompt = base_prompt.format(dashboard_description=desc)
             prompt_user = f"""
             Repository: {repo_name}
-            Dashboard Type: {dashboard_type}
+            Dashboard Dataset Type: {dashboard_type}
+            Visual 3D Component Type: {effective_comp}
             Dashboard Data (JSON):
             {dashboard_data[:3000]}
 
-            CRITICAL INSTRUCTION: Focus EXCLUSIVELY on the dashboard of type '{dashboard_type}' described in the system message. Write your ENTIRE explanation in ENGLISH.
+            CRITICAL INSTRUCTION: Focus EXCLUSIVELY on the dashboard visual specification described in the system message ({effective_comp}). Write your ENTIRE explanation in ENGLISH.
             """
         else:
             system_prompt = _EXPLAIN_SYSTEM_PROMPT_BASE.format(dashboard_description=desc)
             prompt_user = f"""
             Repositorio: {repo_name}
-            Tipo de Dashboard: {dashboard_type}
+            Tipo de Dataset: {dashboard_type}
+            Componente Visual 3D: {effective_comp}
             Datos del Dashboard (JSON):
             {dashboard_data[:3000]}
 
-            INSTRUCCIÓN CRÍTICA: Concéntrate EXCLUSIVAMENTE en el dashboard de tipo '{dashboard_type}' descrito en el mensaje del sistema. Ignora los demás dashboards de la base de datos de ViZzo. No repitas explicaciones ni menciones otros componentes.
+            INSTRUCCIÓN CRÍTICA: Concéntrate EXCLUSIVAMENTE en la especificación visual descrita en el mensaje del sistema ({effective_comp}). Ignora los demás componentes. No repitas explicaciones ni menciones otros componentes.
             """
 
         ai_model = model or AI_MODEL
         local_client = get_openai_client(base_url, api_key)
         logger.info(
-            f"[AI] Generando explicación aislada para {dashboard_type} ({language}) con {ai_model} (URL: {base_url or AI_BASE_URL})..."
+            f"[AI] Generando explicación aislada para dataset={dashboard_type}, comp={effective_comp} ({language}) con {ai_model} (URL: {base_url or AI_BASE_URL})..."
         )
         response = local_client.chat.completions.create(
             model=ai_model,
@@ -574,6 +580,7 @@ def get_ai_explanation(
     dashboard_type: str,
     dashboard_data: str,
     repo_name: str,
+    component_type: str = None,
     base_url: str = None,
     api_key: str = None,
     model: str = None,
@@ -587,8 +594,10 @@ def get_ai_explanation(
         dashboard_type=dashboard_type,
         dashboard_data=dashboard_data,
         repo_name=repo_name,
+        component_type=component_type,
         base_url=base_url,
         api_key=api_key,
         model=model,
         language=language,
     )
+
