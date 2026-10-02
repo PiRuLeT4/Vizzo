@@ -5,14 +5,12 @@
 import logging
 import os
 import time
-import multiprocessing
-import queue
+import threading
 import lizard
 
 from .helpers import (
     is_minified_or_obfuscated,
     is_generated_or_test_file,
-    _lizard_worker_process,
     _LIZARD_EXCLUDE_PATTERNS,
     _LIZARD_INCLUDE_FOLDERS
 )
@@ -61,6 +59,9 @@ def _run_lizard(target_dir: str) -> list:
         ".rs", ".lua", ".scala"
     )
 
+    # Extensiones que son soportadas pero se excluyen por ser definiciones de tipo / autogeneradas
+    _SKIP_SUFFIXES = (".d.ts", ".d.mts", ".d.cts")
+
     # Filtrar archivos: omitimos no soportados, grandes (>45KB), minificados u autogenerados
     filtered_files = []
     skipped_large_files = []
@@ -72,6 +73,11 @@ def _run_lizard(target_dir: str) -> list:
         filtered_files = [target_dir]
     else:
         for f in files_to_analyze:
+            # 0. Ignorar definiciones de tipo TypeScript (.d.ts) que son autogeneradas
+            if f.lower().endswith(_SKIP_SUFFIXES):
+                skipped_generated_files.append(f)
+                continue
+
             # 1. Ignorar archivos que no sean de código fuente de lenguajes soportados
             if not f.lower().endswith(_SUPPORTED_EXTENSIONS):
                 continue
@@ -110,67 +116,47 @@ def _run_lizard(target_dir: str) -> list:
         step = len(filtered_files) / float(_MAX_LIZARD_FILES)
         filtered_files = [filtered_files[int(i * step)] for i in range(_MAX_LIZARD_FILES)]
 
-    # Ejecutar Lizard
+    # Ejecutar Lizard directamente en el hilo actual (sin multiprocessing.Process).
+    # El análisis ya se ejecuta dentro de un ThreadPoolExecutor (orchestrator.py),
+    # por lo que crear un subproceso adicional con spawn en Windows causaba deadlocks
+    # por la combinación de ThreadPoolExecutor → multiprocessing.Process(spawn) → lizard threads.
     analysis = []
-    import sys
-    if "test" in sys.argv:
-        # En entorno de pruebas unitarias, corremos en el mismo proceso para que funcionen los mocks
+    logger.info(f"  - Ejecutando Lizard sobre {len(filtered_files)} archivos (threads={threads_count}, timeout={_LIZARD_TIMEOUT}s)...")
+
+    error_holder = [None]
+
+    def _lizard_worker():
+        """Ejecuta lizard.analyze() en un hilo daemon para poder aplicar timeout."""
         try:
-            analysis = list(
+            results = list(
                 lizard.analyze(
                     filtered_files,
                     exclude_pattern=exclude_patterns,
                     threads=threads_count
                 )
             )
+            analysis.extend(results)
         except Exception as e:
-            logger.error(f"  - Falló Lizard en test: {e}")
-    else:
-        # Ejecutar Lizard en un subproceso con recepción de lotes progresivos y límite estricto de tiempo
-        q = multiprocessing.Queue()
-        p = multiprocessing.Process(
-            target=_lizard_worker_process,
-            args=(q, filtered_files, exclude_patterns, threads_count)
-        )
-        
-        start_time = time.time()
-        try:
-            p.start()
-            while True:
-                elapsed = time.time() - start_time
-                remaining_time = _LIZARD_TIMEOUT - elapsed
-                if remaining_time <= 0:
-                    logger.warning(
-                        f"  - Lizard alcanzó el límite de tiempo de {_LIZARD_TIMEOUT}s. "
-                        f"Conservando {len(analysis)} archivos analizados de forma parcial."
-                    )
-                    p.terminate()
-                    p.join()
-                    break
+            error_holder[0] = e
 
-                try:
-                    status, data = q.get(timeout=min(max(remaining_time, 0.1), 2.0))
-                    if status == "batch":
-                        if data:
-                            analysis.extend(data)
-                    elif status == "done":
-                        break
-                    elif status == "error":
-                        logger.error(f"  - Error en subproceso de Lizard: {data}")
-                        break
-                except queue.Empty:
-                    if not p.is_alive():
-                        break
-        except Exception as e:
-            logger.error(f"  - Error al gestionar subproceso de Lizard: {e}")
-            try:
-                p.terminate()
-                p.join()
-            except Exception:
-                pass
-        else:
-            if p.is_alive():
-                p.join(timeout=1.0)
+    worker_thread = threading.Thread(target=_lizard_worker, daemon=True)
+    start_time = time.time()
+    worker_thread.start()
+    worker_thread.join(timeout=_LIZARD_TIMEOUT)
+
+    elapsed = time.time() - start_time
+    if worker_thread.is_alive():
+        logger.warning(
+            f"  - Lizard alcanzó el límite de tiempo de {_LIZARD_TIMEOUT}s ({elapsed:.1f}s transcurridos). "
+            f"Conservando {len(analysis)} archivos analizados de forma parcial."
+        )
+        # El hilo daemon morirá automáticamente cuando el proceso principal termine o
+        # cuando el ThreadPoolExecutor recicle el worker. No se puede matar un thread
+        # de Python de forma forzada, pero al ser daemon no bloquea la terminación.
+    elif error_holder[0]:
+        logger.error(f"  - Error en Lizard: {error_holder[0]}")
+    else:
+        logger.info(f"  - Lizard finalizó correctamente en {elapsed:.1f}s.")
 
     logger.info(f"Análisis Lizard completado: {len(analysis)} archivos analizados exitosamente.")
     for file in analysis:

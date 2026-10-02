@@ -10,9 +10,6 @@ import shutil
 import stat
 import subprocess
 import time
-import queue
-import multiprocessing
-import lizard
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -364,33 +361,3 @@ def is_generated_or_test_file(filepath: str) -> bool:
         return True
 
     return False
-
-
-def _lizard_worker_process(queue_out, files: list, exclude_patterns: list, threads_count: int, chunk_size: int = 50):
-    """
-    Función de ejecución en subproceso aislado. Procesa la lista de archivos en lotes (chunks)
-    y envía los resultados de forma progresiva a la cola, permitiendo recuperar métricas parciales si ocurre timeout.
-    """
-    try:
-        for i in range(0, len(files), chunk_size):
-            chunk = files[i:i + chunk_size]
-            try:
-                res = list(
-                    lizard.analyze(
-                        chunk,
-                        exclude_pattern=exclude_patterns,
-                        threads=threads_count
-                    )
-                )
-                queue_out.put(("batch", res))
-            except Exception as batch_err:
-                logger.warning(f"[Lizard Worker] Error en lote de archivos: {batch_err}")
-        queue_out.put(("done", None))
-    except Exception as e:
-        queue_out.put(("error", str(e)))
-    finally:
-        try:
-            queue_out.close()
-            queue_out.join_thread()
-        except Exception:
-            pass

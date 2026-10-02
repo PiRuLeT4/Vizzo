@@ -71,6 +71,7 @@ def api_explain(request):
     try:
         data = json.loads(request.body)
         dashboard_type = data.get("dashboard_type", "")
+        component_type = data.get("component_type", "")
         dashboard_data = data.get("dashboard_data", {})
         repo_name = data.get("repo_name", "")
         llm_base_url = request.COOKIES.get("vizzo_llm_base_url", "").strip() or data.get("llm_base_url", "").strip() or None
@@ -89,10 +90,13 @@ def api_explain(request):
         # Generar explicación con el LLM
         from analyzer.core.AI.ai import client, AI_MODEL, parse_explanation_sections
 
-        logger.info(f"Generating explanation ({language}) for dashboard type: {dashboard_type}")
+        logger.info(f"Generating explanation ({language}) for dashboard dataset: {dashboard_type}, component: {component_type}")
         logger.debug(f"Using AI client base_url: {llm_base_url or client.base_url}, model: {llm_model or AI_MODEL}")
         raw_explanation = get_ai_explanation(
-            dashboard_type, json.dumps(dashboard_data), repo_name,
+            dashboard_type=dashboard_type,
+            dashboard_data=json.dumps(dashboard_data),
+            repo_name=repo_name,
+            component_type=component_type,
             base_url=llm_base_url,
             api_key=llm_api_key,
             model=llm_model,
