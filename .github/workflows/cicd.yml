@@ -1,0 +1,81 @@
+name: ViZzo CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # ═══════════════════════════════════════════════════════
+  # JOB 1: Continuous Integration (CI) - Tests & Check
+  # ═══════════════════════════════════════════════════════
+  ci-test:
+    name: 🧪 CI — Tests & Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8
+
+      - name: 🔍 Linting Code (Flake8)
+        run: |
+          # Detiene el flujo si existen errores graves de sintaxis o variables no definidas
+          flake8 ViZo --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Advertencias de estilo (no bloqueante)
+          flake8 ViZo --count --exit-zero --max-complexity=12 --max-line-length=120 --statistics
+
+      - name: 📑 Check Pending Django Migrations
+        env:
+          SECRET_KEY: ci-secret-key-testing-vizo-prod-2026-secure
+          DJANGO_DEBUG: 'True'
+          DB_ENGINE: django.db.backends.sqlite3
+          DB_NAME: ':memory:'
+        run: |
+          python ViZo/manage.py makemigrations --check --dry-run
+
+      - name: 🧪 Run Unit & Integration Tests (39 Tests)
+        env:
+          SECRET_KEY: ci-secret-key-testing-vizo-prod-2026-secure
+          DJANGO_DEBUG: 'True'
+          DB_ENGINE: django.db.backends.sqlite3
+          DB_NAME: ':memory:'
+        run: |
+          python ViZo/manage.py test
+
+  # ═══════════════════════════════════════════════════════
+  # JOB 2: Continuous Deployment (CD) - Deploy to VPS
+  # ═══════════════════════════════════════════════════════
+  cd-deploy:
+    name: 🚀 CD — Deploy to Production VPS (vizzovr.com)
+    needs: ci-test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔌 Trigger VPS Deployment via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            echo "🚀 Iniciando secuencia de despliegue en el VPS (vizzovr.com)..."
+            cd /ruta/a/tu/proyecto/Vizzo || cd ~/Vizzo || cd /var/www/Vizzo
+            git pull origin main
+            chmod +x deploy.sh
+            ./deploy.sh
+            echo "✅ ¡Despliegue completado con éxito en vizzovr.com!"
