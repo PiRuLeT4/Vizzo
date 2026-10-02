@@ -4,7 +4,7 @@
 {% block title %}ViZzo — Intelligent Repository Analysis & 3D Visualization{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/home/home.css' %}?v=1" />
+  <link rel="stylesheet" href="{% static 'css/home/home.css' %}?v=2" />
 {% endblock %}
 
 {% block nav_home_active %}active{% endblock %}
@@ -13,9 +13,6 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <div class="hero-logo-wrap" style="margin-bottom: 2rem; display: flex; justify-content: center;">
-        <img src="{% static 'logo-sin-fondo.png' %}" alt="ViZzo Logo" style="width: 220px; height: auto;" />
-      </div>
       <div class="hero-badge">
         <span class="badge-dot"></span>
         <span data-i18n="home.badge">Plataforma de Análisis de Código</span>
@@ -37,7 +34,23 @@
           Saber más
         </a>
       </div>
+
+      <!-- Feature Pills -->
+      <div class="hero-pills">
+        <div class="hero-pill"><span class="pill-icon">📊</span> Lizard CCN</div>
+        <div class="hero-pill"><span class="pill-icon">📈</span> PyDriller</div>
+        <div class="hero-pill"><span class="pill-icon">🤖</span> IA Integrada</div>
+        <div class="hero-pill"><span class="pill-icon">🕶️</span> 3D / VR Room</div>
+      </div>
     </div>
+
+    <!-- Scroll Indicator -->
+    <a href="#how-it-works" class="hero-scroll-indicator" aria-label="Scroll down">
+      <span class="scroll-mouse">
+        <span class="scroll-wheel"></span>
+      </span>
+      <span class="scroll-text" data-i18n="home.scroll_text">Descubre más</span>
+    </a>
   </section>
 
   <!-- How it works Section -->
