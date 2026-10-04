@@ -43,6 +43,8 @@ jobs:
           DJANGO_DEBUG: 'True'
           DB_ENGINE: django.db.backends.sqlite3
           DB_NAME: ':memory:'
+          DEEPSEEK_API_KEY: 'ci-dummy-key'
+          OPENAI_API_KEY: 'ci-dummy-key'
         run: |
           python ViZo/manage.py makemigrations --check --dry-run
 
@@ -52,6 +54,8 @@ jobs:
           DJANGO_DEBUG: 'True'
           DB_ENGINE: django.db.backends.sqlite3
           DB_NAME: ':memory:'
+          DEEPSEEK_API_KEY: 'ci-dummy-key'
+          OPENAI_API_KEY: 'ci-dummy-key'
         run: |
           python ViZo/manage.py test
 

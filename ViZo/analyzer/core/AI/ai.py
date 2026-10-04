@@ -29,10 +29,10 @@ AI_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 AI_MODEL = os.getenv("DEEPSEEK_MODEL")
 DEFAULT_AI_TIMEOUT = float(os.getenv("AI_TIMEOUT", "120.0"))
 
-# Conexión local con LM Studio / OpenAI
+# Conexión local con LM Studio / OpenAI (con clave segura por defecto para importaciones/testing)
 client = OpenAI(
     base_url=AI_BASE_URL,
-    api_key=AI_API_KEY,
+    api_key=AI_API_KEY or "dummy-key-offline",
     timeout=DEFAULT_AI_TIMEOUT,
     max_retries=0,  # No reintentar si falla la conexión inicial
 )
@@ -43,9 +43,10 @@ def get_openai_client(base_url=None, api_key=None, timeout=None):
     Crea una instancia local del cliente OpenAI con los parámetros suministrados,
     haciendo fallback a los valores por defecto del sistema.
     """
+    effective_api_key = api_key or AI_API_KEY or "dummy-key-offline"
     return OpenAI(
         base_url=base_url or AI_BASE_URL,
-        api_key=api_key or AI_API_KEY,
+        api_key=effective_api_key,
         timeout=timeout or DEFAULT_AI_TIMEOUT,
         max_retries=0,
     )
