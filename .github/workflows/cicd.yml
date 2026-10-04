@@ -2,9 +2,9 @@ name: ViZzo CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   # ═══════════════════════════════════════════════════════
@@ -21,8 +21,8 @@ jobs:
       - name: 🐍 Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
 
       - name: 📦 Install Dependencies
         run: |
@@ -40,22 +40,22 @@ jobs:
       - name: 📑 Check Pending Django Migrations
         env:
           SECRET_KEY: ci-secret-key-testing-vizo-prod-2026-secure
-          DJANGO_DEBUG: 'True'
+          DJANGO_DEBUG: "True"
           DB_ENGINE: django.db.backends.sqlite3
-          DB_NAME: ':memory:'
-          DEEPSEEK_API_KEY: 'ci-dummy-key'
-          OPENAI_API_KEY: 'ci-dummy-key'
+          DB_NAME: ":memory:"
+          DEEPSEEK_API_KEY: "ci-dummy-key"
+          OPENAI_API_KEY: "ci-dummy-key"
         run: |
           python ViZo/manage.py makemigrations --check --dry-run
 
       - name: 🧪 Run Unit & Integration Tests (39 Tests)
         env:
           SECRET_KEY: ci-secret-key-testing-vizo-prod-2026-secure
-          DJANGO_DEBUG: 'True'
+          DJANGO_DEBUG: "True"
           DB_ENGINE: django.db.backends.sqlite3
-          DB_NAME: ':memory:'
-          DEEPSEEK_API_KEY: 'ci-dummy-key'
-          OPENAI_API_KEY: 'ci-dummy-key'
+          DB_NAME: ":memory:"
+          DEEPSEEK_API_KEY: "ci-dummy-key"
+          OPENAI_API_KEY: "ci-dummy-key"
         run: |
           python ViZo/manage.py test
 
@@ -78,7 +78,7 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             echo "🚀 Iniciando secuencia de despliegue en el VPS (vizzovr.com)..."
-            cd /ruta/a/tu/proyecto/Vizzo || cd ~/Vizzo || cd /var/www/Vizzo
+            cd /Vizzo || cd ~/Vizzo || cd /var/www/Vizzo
             git pull origin main
             chmod +x deploy.sh
             ./deploy.sh
