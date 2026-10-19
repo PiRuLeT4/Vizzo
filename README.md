@@ -23,6 +23,9 @@
 <p align="center">
   <a href="https://vizzovr.com"><b>🔗 Probar ViZo en vivo → vizzovr.com</b></a>
 </p>
+<p align="center">
+  <a href="https://vizzo-docs-85faf8.gitlab.io/"><b>🔗 Documentación → https://vizzo-docs-85faf8.gitlab.io/</b></a>
+</p>
 
 ---
 
