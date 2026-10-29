@@ -10,8 +10,10 @@ services:
       POSTGRES_DB: ${DB_NAME:-ViZo_DB}
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres_secure_password}
-    ports:
-      - "${DB_PORT:-5432}:5432"
+    # No exponemos puertos en el host (0.0.0.0) para proteger la base de datos de accesos externos desde Internet.
+    # El contenedor web (Django) se comunica con db directamente a través de la red interna de Docker.
+    expose:
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

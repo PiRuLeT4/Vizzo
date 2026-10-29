@@ -236,6 +236,22 @@ img {
   border-radius: 1px;
 }
 
+.nav-doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.nav-doc-link .nav-external-icon {
+  opacity: 0.6;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-doc-link:hover .nav-external-icon {
+  opacity: 1;
+  transform: translate(1px, -1px);
+}
+
 /* ── Navbar: Right actions ── */
 .navbar-actions {
   display: flex;

@@ -175,6 +175,9 @@ STORAGES = {
     },
 }
 
+# En desarrollo, hacer que WhiteNoise busque directamente en STATICFILES_DIRS (static/)
+WHITENOISE_USE_FINDERS = True
+
 # Production Security Hardening
 if not DEBUG:
     SESSION_COOKIE_SECURE = True

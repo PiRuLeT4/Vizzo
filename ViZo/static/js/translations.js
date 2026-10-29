@@ -8,6 +8,7 @@ const TRANSLATIONS = {
     // ── Navbar ──
     "nav.home": "Inicio",
     "nav.analyzer": "Analizador",
+    "nav.doc": "Doc",
     "nav.connect": "Conectar Cuenta",
     "nav.logout_title": "Cerrar sesión",
 
@@ -20,6 +21,7 @@ const TRANSLATIONS = {
     "home.cta": "Analizar Repositorio",
     "home.cta_arrow": "→",
     "home.cta_secondary": "Saber más",
+    "home.cta_doc": "Doc",
     "home.scroll_text": "Descubre más",
 
     // How it works
@@ -52,6 +54,7 @@ const TRANSLATIONS = {
 
     // Footer
     "home.footer": "ViZzo — Plataforma de Análisis Inteligente de Repositorios. Proyecto de TFG.",
+    "home.footer_doc": "Documentación (Doc)",
 
     // ── Analyzer Page ──
     "analyzer.panel.public": "Archivo Público",
@@ -135,6 +138,7 @@ const TRANSLATIONS = {
     // ── Navbar ──
     "nav.home": "Home",
     "nav.analyzer": "Analyzer",
+    "nav.doc": "Doc",
     "nav.connect": "Connect Account",
     "nav.logout_title": "Sign out",
 
@@ -147,6 +151,7 @@ const TRANSLATIONS = {
     "home.cta": "Analyze Repository",
     "home.cta_arrow": "→",
     "home.cta_secondary": "Learn more",
+    "home.cta_doc": "Doc",
     "home.scroll_text": "Discover more",
 
     // How it works
@@ -179,6 +184,7 @@ const TRANSLATIONS = {
 
     // Footer
     "home.footer": "ViZzo — Intelligent Repository Analysis Platform. BSc Thesis Project.",
+    "home.footer_doc": "Documentation (Doc)",
 
     // ── Analyzer Page ──
     "analyzer.panel.public": "Public Archive",
