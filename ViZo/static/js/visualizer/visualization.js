@@ -236,10 +236,10 @@ function buildVisualization() {
     const datasetData = window.ViZzoState.dataMap[datasetKey];
     const isEmpty = !datasetData || 
                     (Array.isArray(datasetData) && datasetData.length === 0) ||
-                    (typeof datasetData === 'object' && 
+                    (datasetKey === "file_network" && new Set(datasetData.map((x) => x.author)).size <= 1) ||
+                    (typeof datasetData === 'object' && !Array.isArray(datasetData) &&
                      (!datasetData.nodes || datasetData.nodes.length === 0) &&
-                     (!datasetData.links || datasetData.links.length === 0) &&
-                     Object.keys(datasetData).length === 0);
+                     (!datasetData.links || datasetData.links.length === 0));
 
     if (isEmpty) {
       console.warn(`ViZzo // Omitiendo dashboard '${dash.id}' (${dash.component}) porque el dataset '${datasetKey}' está vacío.`);

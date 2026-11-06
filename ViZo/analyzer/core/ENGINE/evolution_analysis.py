@@ -17,6 +17,33 @@ from .helpers import (
 logger = logging.getLogger(__name__)
 
 
+def _build_author_alias_map(author_emails: dict, author_counts: dict) -> dict:
+    """Unifica apodos y nombres completos de un mismo autor comparando nombres y correos."""
+    authors = sorted(author_counts.keys(), key=lambda a: author_counts[a], reverse=True)
+    alias_map = {}
+    clean = lambda s: "".join(c for c in s.lower() if c.isalnum())
+    for i, a1 in enumerate(authors):
+        if a1 in alias_map or a1 in ("Unknown", "Release"):
+            continue
+        c1, e1 = clean(a1), author_emails.get(a1, set())
+        t1 = {clean(w) for w in a1.split() if len(clean(w)) >= 4}
+        for a2 in authors[i + 1 :]:
+            if a2 in alias_map or a2 in ("Unknown", "Release"):
+                continue
+            c2, e2 = clean(a2), author_emails.get(a2, set())
+            t2 = {clean(w) for w in a2.split() if len(clean(w)) >= 4}
+            if (
+                (e1 & e2)
+                or (len(c1) >= 4 and len(c2) >= 4 and (c1 in c2 or c2 in c1))
+                or any(tok in em for tok in t1 for em in e2)
+                or any(tok in em for tok in t2 for em in e1)
+                or any(c1 in em for em in e2 if len(c1) >= 4)
+                or any(c2 in em for em in e1 if len(c2) >= 4)
+            ):
+                alias_map[a2] = a1
+    return alias_map
+
+
 def _run_git_history(target_dir: str, max_commits: int = 150) -> dict:
     """
     Recorre el historial de commits con PyDriller de forma inversa y devuelve métricas de evolución.
@@ -46,6 +73,9 @@ def _run_git_history(target_dir: str, max_commits: int = 150) -> dict:
         recent_commits_info = []
         file_author_commits = {}
         file_last_modified = {}
+        author_emails = {}
+        author_counts = {}
+        clean_alnum = lambda s: "".join(c for c in s.lower() if c.isalnum())
 
         # Recorremos en orden inverso (los más nuevos primero) y limitamos a max_commits
         generator = DrillRepo(target_dir, order="reverse").traverse_commits()
@@ -55,6 +85,11 @@ def _run_git_history(target_dir: str, max_commits: int = 150) -> dict:
                     break
 
                 author_name = commit.author.name if commit.author else "Unknown"
+                raw_email = (commit.author.email or "") if commit.author else ""
+                email_local = clean_alnum(raw_email.split("@")[0].split("+")[-1])
+                author_counts[author_name] = author_counts.get(author_name, 0) + 1
+                if email_local:
+                    author_emails.setdefault(author_name, set()).add(email_local)
                 date_str = commit.author_date.strftime("%Y-%m-%d")
 
                 # Extraemos lo que necesitamos controlando fallos individuales de diff en shallow clones
@@ -86,11 +121,6 @@ def _run_git_history(target_dir: str, max_commits: int = 150) -> dict:
                         rel_path = path.replace("\\", "/")
                         if rel_path not in file_last_modified:
                             file_last_modified[rel_path] = commit.author_date
-                        if rel_path not in file_author_commits:
-                            file_author_commits[rel_path] = {}
-                        file_author_commits[rel_path][author_name] = (
-                            file_author_commits[rel_path].get(author_name, 0) + 1
-                        )
 
                     info["modified_files"].append(
                         {
@@ -104,6 +134,9 @@ def _run_git_history(target_dir: str, max_commits: int = 150) -> dict:
         finally:
             generator.close()
 
+        # Unificar alias/apodos del mismo autor antes de agregar métricas
+        alias_map = _build_author_alias_map(author_emails, author_counts)
+
         # Invertimos la lista para restaurar el orden cronológico
         recent_commits_info.reverse()
 
@@ -111,6 +144,7 @@ def _run_git_history(target_dir: str, max_commits: int = 150) -> dict:
 
         # Procesamos solo los finalistas
         for info in recent_commits_info:
+            info["author"] = alias_map.get(info["author"], info["author"])
             evolution_data["authors"].add(info["author"])
             evolution_data["timeline"][info["date"]] = (
                 evolution_data["timeline"].get(info["date"], 0) + 1
@@ -147,6 +181,11 @@ def _run_git_history(target_dir: str, max_commits: int = 150) -> dict:
                 if not mf["path"]:
                     continue
                 file_path = mf["path"].replace("\\", "/")
+                if file_path not in file_author_commits:
+                    file_author_commits[file_path] = {}
+                file_author_commits[file_path][author] = (
+                    file_author_commits[file_path].get(author, 0) + 1
+                )
 
                 evolution_data["file_churn"][file_path] = (
                     evolution_data["file_churn"].get(file_path, 0) + 1

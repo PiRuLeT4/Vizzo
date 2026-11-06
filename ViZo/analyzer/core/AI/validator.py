@@ -82,7 +82,7 @@ def _extract_summary_and_json(raw_content: str) -> tuple[str, str]:
     return summary, json_part
 
 
-def _validate_and_fix_config(config: dict) -> dict:
+def _validate_and_fix_config(config: dict, repo_summary: dict = None) -> dict:
     """
     Valida y corrige el dict de configuración devuelto por la IA.
     Asegura que dashboards sea una lista válida con al menos babia-boats y sin duplicados.
@@ -122,6 +122,13 @@ def _validate_and_fix_config(config: dict) -> dict:
             "code_reviews",
         }:
             dash["dataset"] = "file_network"
+
+        if component == "babia-network" and isinstance(repo_summary, dict) and repo_summary:
+            if dash["dataset"] == "file_network" and repo_summary.get("num_authors", 2) <= 1:
+                continue
+            cr = repo_summary.get("code_reviews")
+            if dash["dataset"] == "code_reviews" and isinstance(cr, dict) and not (cr.get("nodes") or cr.get("links")):
+                continue
 
         # Evitar duplicación de dashboards con la misma combinación (component, dataset)
         key = (component, dash["dataset"])

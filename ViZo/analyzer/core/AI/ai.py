@@ -62,10 +62,13 @@ def get_ai_config(
     try:
         # Analizar disponibilidad de datos de API en el resumen
         has_api_data = False
+        summary_dict = {}
         try:
-            summary_dict = json.loads(repo_summary) if isinstance(repo_summary, str) else repo_summary
+            summary_dict = json.loads(repo_summary) if isinstance(repo_summary, str) else (repo_summary or {})
+            cr = summary_dict.get("code_reviews")
+            has_cr = bool(cr.get("nodes") or cr.get("links")) if isinstance(cr, dict) else bool(cr)
             if (
-                summary_dict.get("code_reviews")
+                has_cr
                 or summary_dict.get("issues_health")
                 or summary_dict.get("releases_health")
                 or summary_dict.get("community_activity")
@@ -103,7 +106,7 @@ def get_ai_config(
         logger.info(f"ESTRATEGIA DE LA IA: {summary}")
 
         config = json.loads(json_str)
-        config = _validate_and_fix_config(config)
+        config = _validate_and_fix_config(config, summary_dict)
         config["ai_status"] = "success"
 
         logger.info(f"[AI] Dashboards configurados: {[d['component'] for d in config['dashboards']]}")

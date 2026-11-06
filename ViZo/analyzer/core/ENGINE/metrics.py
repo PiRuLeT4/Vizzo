@@ -222,23 +222,23 @@ def _process_metrics(
     top_authors_set = {auth for auth, _ in top_authors}
 
     file_network = []
-    # Generar red basada en autor y archivo (linkId)
-    # Por cada autor de cada archivo que tiene commits
-    for rel_path, authors_dict in evolution_data.get("file_author_commits", {}).items():
-        for author in authors_dict.keys():
-            if author not in top_authors_set:
-                continue
+    # Generar red basada en autor y archivo (linkId) solo si hay más de 1 autor
+    if len(top_authors_set) > 1:
+        for rel_path, authors_dict in evolution_data.get("file_author_commits", {}).items():
+            for author in authors_dict.keys():
+                if author not in top_authors_set:
+                    continue
 
-            raw_size = author_commits.get(author, 1)
+                raw_size = author_commits.get(author, 1)
 
-            file_network.append(
-                {
-                    "author": author,
-                    "file": rel_path,
-                    "size": raw_size,
-                    "commits": raw_size,
-                }
-            )
+                file_network.append(
+                    {
+                        "author": author,
+                        "file": rel_path,
+                        "size": raw_size,
+                        "commits": raw_size,
+                    }
+                )
 
     logger.info("ViZzo // Red de Colaboración:")
     logger.info(f"  - Autores principales seleccionados (Top 10): {list(top_authors_set)}")
