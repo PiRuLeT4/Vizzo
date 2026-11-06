@@ -10,7 +10,7 @@ DEFAULT_AI_CONFIG = {
             "component": "babia-boats",
             "dataset": "file_metrics",
             "title": "Code Complexity Boats",
-            "mappings": {"key": "id", "height": "nloc", "area": "ccn"},
+            "mappings": {"key": "id", "height": "nloc", "area": "ccn", "color": "commits"},
         }
     ],
     "ai_status": "offline",
@@ -37,7 +37,7 @@ _VALID_DATASETS = {
 
 # Mappings por defecto para cada componente
 _DEFAULT_MAPPINGS = {
-    "babia-boats": {"key": "id", "height": "nloc", "area": "ccn"},
+    "babia-boats": {"key": "id", "height": "nloc", "area": "ccn", "color": "commits"},
     "babia-cyls": {"x_axis": "language", "height": "nloc", "radius": "count"},
     "babia-doughnut": {"key": "language", "size": "count"},
     "babia-pie": {"key": "label", "size": "count"},
@@ -54,7 +54,7 @@ _DEFAULT_MAPPINGS = {
 }
 
 _DEFAULT_MAPPINGS_BY_DATASET = {
-    ("babia-boats", "file_metrics"): {"key": "id", "height": "nloc", "area": "ccn"},
+    ("babia-boats", "file_metrics"): {"key": "id", "height": "nloc", "area": "ccn", "color": "commits"},
     ("babia-cyls", "data_by_language"): {
         "x_axis": "language",
         "height": "nloc",

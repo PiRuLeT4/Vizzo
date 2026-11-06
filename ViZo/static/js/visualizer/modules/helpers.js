@@ -535,7 +535,7 @@ export function updateButtonStates(panelEl, targetEl, type) {
   if (type === "boats") {
     var config = targetEl.getAttribute("babia-boats") || {};
     currentHeight = config.height || "nloc";
-    currentColor = config.color || "nloc";
+    currentColor = config.color || "commits";
   }
 
   var buttons = panelEl.querySelectorAll("[vizzo-control-btn]");

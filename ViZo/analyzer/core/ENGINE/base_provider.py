@@ -91,22 +91,31 @@ class BaseMetadataProvider:
         return activity[:15]
 
     def _build_releases_health(self, raw_releases: list, issues: list) -> list:
-        """Calcula el índice de estabilidad de despliegues relacionando releases con bugs posteriores."""
+        """Calcula el índice de estabilidad de despliegues relacionando releases con bugs posteriores y notas de versión."""
         releases_health = []
         if isinstance(raw_releases, list):
-            for rel in raw_releases:
+            for idx, rel in enumerate(raw_releases):
                 tag = rel.get("tag_name", "vUnknown")
-                rel_date = parse_iso_date(rel.get("created_at"))
+                rel_date = parse_iso_date(rel.get("created_at") or rel.get("published_at"))
 
-                bugs_count = 0
+                issue_bugs = 0
                 if rel_date:
-                    limit_date = rel_date + timedelta(days=7)
+                    prev_date = parse_iso_date(raw_releases[idx - 1].get("created_at")) if idx > 0 else None
+                    limit_date = max(prev_date, rel_date + timedelta(days=14)) if prev_date else rel_date + timedelta(days=30)
                     for issue in issues:
                         iss_date = parse_iso_date(issue.get("created_at"))
                         if iss_date and rel_date <= iss_date <= limit_date:
-                            labels_str = "".join(issue.get("labels", [])).lower()
-                            if "bug" in labels_str or "error" in labels_str:
-                                bugs_count += 1
+                            text = ("".join(issue.get("labels", [])) + " " + issue.get("title", "")).lower()
+                            if any(k in text for k in ("bug", "error", "fix", "crash", "fail", "defect")):
+                                issue_bugs += 1
+
+                body = (rel.get("body") or rel.get("description") or "").lower()
+                body_bugs = sum(
+                    1 for line in body.splitlines()
+                    if not line.strip().startswith("#")
+                    and re.search(r"\b(fix|fixed|fixes|bug|bugs|bugfix|hotfix|error|crash|defect|patch|resolved)\b", line)
+                )
+                bugs_count = issue_bugs + body_bugs
 
                 releases_health.append({
                     "release_version": tag,

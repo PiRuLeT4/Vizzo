@@ -111,7 +111,7 @@ export function buildCity(scene, dash, loaderId, pos) {
       "maxBuildingHeight: 10",
       "separation: 0.25",
       "legend_text: {name}\nNLOC: {nloc} | CCN: {ccn}\nCommits: {commits} | Funcs: {num_functions}\nEdad: {age_days}d | Owner: {owner_name} ({ownership}%)",
-      "color: " + (m.color || m.height || "nloc"),
+      "color: " + (["commits", "ccn", "ownership", "age_days"].includes(m.color) ? m.color : "commits"),
       "autoscale: true",
       "autoscaleSizeX: " + dynamicSize,
       "highlightQuarter: true",

@@ -330,6 +330,15 @@ AFRAME.registerComponent("nav-button", {
 });
 
 /* ── vizzo-control-btn: interactive 3D buttons for custom dashboard configuration ── */
+if (window.AFRAME && AFRAME.components["babia-boats"]) {
+  const origUpdateChart = AFRAME.components["babia-boats"].Component.prototype.updateChart;
+  AFRAME.components["babia-boats"].Component.prototype.updateChart = function (t) {
+    if (this.babiaMetadata && this.babiaMetadata.color_max === this.babiaMetadata.color_min) {
+      this.babiaMetadata.color_min = (this.babiaMetadata.color_max || 0) - 1;
+    }
+    return origUpdateChart.call(this, t);
+  };
+}
 AFRAME.registerComponent("vizzo-control-btn", {
   schema: {
     action: { type: "string" }, // "wireframe", "cycle-height", "cycle-area", "set-height", "set-color"
