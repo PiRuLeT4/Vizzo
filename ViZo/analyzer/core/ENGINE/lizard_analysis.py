@@ -27,7 +27,7 @@ def _run_lizard(target_dir: str) -> list:
     # Exclusión de carpetas de dependencias y temporales ruidosas para optimizar el rendimiento en repos grandes
     exclude_patterns = _LIZARD_EXCLUDE_PATTERNS
     
-    threads_count = min(os.cpu_count() or 2, 4)
+    threads_count = 1
 
     # Expandir directorios a archivos individuales para realizar filtros preventivos
     files_to_analyze = []
