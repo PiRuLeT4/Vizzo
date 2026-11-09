@@ -376,6 +376,120 @@ input[type="url"].invalid {
   font-weight: 500;
 }
 
+/* ── Privacy AI Notice Warning ── */
+.privacy-ai-notice {
+  margin-top: 1rem;
+  padding: 1rem 1.15rem;
+  background: rgba(234, 179, 8, 0.04);
+  border: 1px solid rgba(234, 179, 8, 0.28);
+  border-left: 3px solid #eab308;
+  border-radius: var(--radius-sm);
+  animation: fadeInNotice 0.25s ease-out;
+  transition: all 0.3s ease;
+}
+
+@keyframes fadeInNotice {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.privacy-ai-notice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.privacy-ai-notice-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #eab308;
+  text-transform: uppercase;
+}
+
+.privacy-notice-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  transition: color 0.15s ease;
+}
+
+.privacy-notice-close-btn:hover {
+  color: #ffffff;
+}
+
+.privacy-ai-notice-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fef08a;
+  margin-bottom: 0.45rem;
+  letter-spacing: -0.01em;
+}
+
+.privacy-ai-notice-desc {
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #d1d5db;
+  margin-bottom: 0.85rem;
+}
+
+.privacy-ai-notice-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.privacy-open-ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #0f172a;
+  background: #facc15;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.privacy-open-ai-btn:hover {
+  background: #fde047;
+  transform: translateY(-1px);
+}
+
+.privacy-dismiss-link {
+  background: transparent;
+  border: none;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.15s ease;
+  padding: 0;
+}
+
+.privacy-dismiss-link:hover {
+  color: var(--text-secondary);
+}
+
 /* ── History Scroll Container ── */
 .history-scroll-container {
   max-height: 480px;

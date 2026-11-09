@@ -137,4 +137,50 @@ export function initUiEffects() {
       }
     });
   }
+
+
+  // ── Privacy AI Notice Warning Handlers ──
+  const isPrivateCheckbox = document.getElementById('isPrivate');
+  const privateAiNotice = document.getElementById('privateAiNotice');
+  const dismissPrivacyNoticeBtn = document.getElementById('dismissPrivacyNoticeBtn');
+  const dontShowAgainPrivacyBtn = document.getElementById('dontShowAgainPrivacyBtn');
+  const privacyOpenAiBtn = document.getElementById('privacyOpenAiBtn');
+
+  function checkPrivacyNoticeVisibility() {
+    if (!isPrivateCheckbox || !privateAiNotice) return;
+    const isDismissed = localStorage.getItem('vizzo_dismiss_privacy_notice') === 'true';
+    if (isPrivateCheckbox.checked && !isDismissed) {
+      privateAiNotice.style.display = 'block';
+    } else {
+      privateAiNotice.style.display = 'none';
+    }
+  }
+
+  if (isPrivateCheckbox) {
+    isPrivateCheckbox.addEventListener('change', checkPrivacyNoticeVisibility);
+    checkPrivacyNoticeVisibility();
+  }
+
+  if (dismissPrivacyNoticeBtn && privateAiNotice) {
+    dismissPrivacyNoticeBtn.addEventListener('click', function() {
+      privateAiNotice.style.display = 'none';
+    });
+  }
+
+  if (dontShowAgainPrivacyBtn && privateAiNotice) {
+    dontShowAgainPrivacyBtn.addEventListener('click', function() {
+      localStorage.setItem('vizzo_dismiss_privacy_notice', 'true');
+      privateAiNotice.style.display = 'none';
+    });
+  }
+
+  if (privacyOpenAiBtn) {
+    privacyOpenAiBtn.addEventListener('click', function() {
+      const openAiModalBtn = document.getElementById('openAiModalBtn');
+      if (openAiModalBtn) {
+        openAiModalBtn.click();
+      }
+    });
+  }
 }
+
