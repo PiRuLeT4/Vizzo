@@ -6,6 +6,7 @@
 import gc
 import logging
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -323,8 +324,9 @@ def is_minified_or_obfuscated(filepath: str) -> bool:
     """
     basename = os.path.basename(filepath).lower()
     
-    # 1. Patrones comunes de compresión en nombres
-    if any(pat in basename for pat in [".min.", ".bundle.", ".prod.", "-min.", ".esm."]):
+    # 1. Patrones comunes de compresión en nombres y bundles
+    if (any(pat in basename for pat in [".min.", ".bundle.", ".prod.", "-min.", ".esm."])
+            or basename.endswith((".min.js", ".min.css", ".bundle.js"))):
         return True
         
     # 2. Heurístico de longitud de línea (primeras 20 líneas)
@@ -342,22 +344,51 @@ def is_minified_or_obfuscated(filepath: str) -> bool:
     return False
 
 
+# Patrones y delimitadores precisos para archivos de pruebas y autogenerados
+_TEST_FILE_PREFIXES = ("test_", "test-", "tests_")
+_TEST_FILE_INFIXES = (".test.", "_test.", ".spec.", "_spec.")
+_TEST_FILE_SUFFIXES = ("_test", "-test", "_spec", "-spec")
+
+# Expresión regular con límites de token (evita falsos positivos como 'evolution' para 'vo' o 'log4j' para 'g4')
+_GENERATED_TOKEN_REGEX = re.compile(
+    r'(?:^|[._-])(?:objectfactory|crossversionmodeltool|dto|dao|vo|antlr)(?:[._-]|\.[a-zA-Z0-9]+$)',
+    re.IGNORECASE
+)
+_GENERATED_INFIX_PATTERNS = (".pb.", ".generated.", ".designer.", "_pb2.", "_pb2_grpc.")
+
+
 def is_generated_or_test_file(filepath: str) -> bool:
     """
-    Comprueba si un archivo es código fuente generado automáticamente (ObjectFactory, DTOs, parsers XML)
-    o archivos de pruebas ruidosos que bloquean el análisis estático de Lizard.
+    Comprueba si un archivo es código fuente generado automáticamente (ObjectFactory, DTOs, parsers, protobuf)
+    o archivos de pruebas ruidosos que distorsionan el análisis estático.
+    Aplica coincidencia precisa por límites de token y sufijos para evitar falsos positivos
+    (por ejemplo, no confunde 'evolution_analysis.py' con 'vo', ni 'log4j' con 'g4', ni 'latest_*' con 'test_').
     """
-    basename = os.path.basename(filepath).lower()
+    orig_basename = os.path.basename(filepath)
+    basename = orig_basename.lower()
+    name, ext = os.path.splitext(basename)
+    raw_name, _ = os.path.splitext(orig_basename)
 
-    # Patrones de pruebas / unit tests
-    if any(pat in basename for pat in [".spec.", ".test.", "_test.", "test_", "testcase"]):
+    # 1. Patrones de pruebas / unit tests (prefijos, infijos delimitados o sufijos)
+    if basename.startswith(_TEST_FILE_PREFIXES):
+        return True
+    if any(inf in basename for inf in _TEST_FILE_INFIXES):
+        return True
+    if name.endswith(_TEST_FILE_SUFFIXES):
+        return True
+    if basename.startswith("testcase") or "_testcase" in basename or ".testcase" in basename:
         return True
 
-    # Patrones de código autogenerado común (Java, C#, Go, C++)
-    if any(pat in basename for pat in [
-        "objectfactory", "crossversionmodeltool", "dto", "dao", "vo",
-        ".pb.", ".generated.", ".designer.", "antlr", "g4"
-    ]):
+    # 2. Archivos autogenerados y gramáticas
+    if basename.endswith((".g4", ".antlr")):
+        return True
+    if any(pat in basename for pat in _GENERATED_INFIX_PATTERNS):
+        return True
+    if _GENERATED_TOKEN_REGEX.search(basename):
+        return True
+    if raw_name.endswith(("DTO", "Dao", "DAO", "VO")):
+        return True
+    if name.endswith(("_dto", "-dto", ".dto", "_dao", "-dao", ".dao", "_vo", "-vo", ".vo")):
         return True
 
     return False

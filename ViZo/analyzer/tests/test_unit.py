@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from unittest.mock import patch
 
@@ -498,6 +499,69 @@ class LizardOptimizationTestCase(TestCase):
         self.assertIn("exclude_pattern", kwargs)
         self.assertIn("threads", kwargs)
         self.assertIn("*/node_modules/*", kwargs["exclude_pattern"])
+
+    def test_helpers_filtering_no_false_positives(self):
+        from analyzer.core.ENGINE.helpers import is_generated_or_test_file
+
+        # Archivos legítimos que NO deben descartarse por falsos positivos (evita bugs de subcadena: vo, g4, test_)
+        valid_files = [
+            "evolution_analysis.py",
+            "voice.py",
+            "volume.py",
+            "invoice.py",
+            "latest_commits.py",
+            "fastest_path.py",
+            "log4j.py",
+            "log4j-core.java",
+            "bravo.py",
+            "server.py",
+        ]
+        for f in valid_files:
+            self.assertFalse(
+                is_generated_or_test_file(f),
+                f"El archivo legítimo {f} fue incorrectamente descartado."
+            )
+
+        # Archivos autogenerados o de pruebas que SÍ deben descartarse
+        filtered_files = [
+            "test_analyzer.py",
+            "app_test.go",
+            "component.test.js",
+            "view.spec.ts",
+            "user_dto.py",
+            "UserDTO.java",
+            "UserVO.java",
+            "order_vo.py",
+            "account_dao.py",
+            "MyGrammar.g4",
+            "service.pb.go",
+            "form.designer.cs",
+            "model.generated.ts",
+            "objectfactory.java",
+        ]
+        for f in filtered_files:
+            self.assertTrue(
+                is_generated_or_test_file(f),
+                f"El archivo {f} debería haber sido identificado como test o autogenerado."
+            )
+
+    def test_is_minified_or_obfuscated(self):
+        from analyzer.core.ENGINE.helpers import is_minified_or_obfuscated
+        import tempfile
+
+        # Archivo normal con líneas cortas
+        with tempfile.NamedTemporaryFile("w+", suffix=".js", delete=False) as f:
+            f.write("function hello() {\n    return 'world';\n}\n")
+            normal_path = f.name
+        try:
+            self.assertFalse(is_minified_or_obfuscated(normal_path))
+        finally:
+            if os.path.exists(normal_path):
+                os.remove(normal_path)
+
+        # Archivo con nombre minificado o bundle
+        self.assertTrue(is_minified_or_obfuscated("/path/to/app.min.js"))
+        self.assertTrue(is_minified_or_obfuscated("/path/to/vendor.bundle.js"))
 
 
 class PublicProviderTestCase(TestCase):

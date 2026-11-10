@@ -18,6 +18,7 @@ from .helpers import (
 logger = logging.getLogger(__name__)
 _LIZARD_TIMEOUT = 60.0
 _MAX_LIZARD_FILES = 800
+_MAX_FILE_SIZE_KB = 500.0  # Límite superior de seguridad (~12.000-15.000 líneas) para evitar volcados masivos sin recortar God Classes
 
 
 def _run_lizard(target_dir: str) -> list:
@@ -82,10 +83,10 @@ def _run_lizard(target_dir: str) -> list:
             if not f.lower().endswith(_SUPPORTED_EXTENSIONS):
                 continue
 
-            # 2. Ignorar archivos de código fuente muy grandes (>45KB)
+            # 2. Ignorar archivos desproporcionadamente masivos (>500KB) para evitar volcados de datos sin recortar God Classes
             try:
                 size_kb = os.path.getsize(f) / 1024.0
-                if size_kb > 45.0:
+                if size_kb > _MAX_FILE_SIZE_KB:
                     skipped_large_files.append((f, size_kb))
                     continue
             except Exception:
@@ -104,7 +105,7 @@ def _run_lizard(target_dir: str) -> list:
             filtered_files.append(f)
 
     if skipped_large_files:
-        logger.warning(f"  - Omitidos {len(skipped_large_files)} archivos grandes (>45KB)")
+        logger.warning(f"  - Omitidos {len(skipped_large_files)} archivos masivos (>{_MAX_FILE_SIZE_KB:.0f}KB)")
     if skipped_minified_files:
         logger.warning(f"  - Omitidos {len(skipped_minified_files)} archivos minificados/ofuscados")
     if skipped_generated_files:
